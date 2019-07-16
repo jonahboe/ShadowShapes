@@ -66,7 +66,7 @@ void setup() {
   // Set up world
   Fisica.init(this);
   world = new FWorld();
-  world.setGravity(0, 800);
+  world.setGravity(0, 1000);
   world.setEdges();
   world.remove(world.left);
   world.remove(world.right);

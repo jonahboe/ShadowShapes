@@ -53,8 +53,8 @@ public class ShapeFinder {
     shape.setNoStroke();
     color c = randomColor();
     shape.setFill(red(c),green(c),blue(c));
-    shape.setDensity(10);
-    shape.setRestitution(0.5);
+    shape.setDensity(50);
+    shape.setRestitution(0.3);
     shape.setFriction(0.3);
     
     // make the shape

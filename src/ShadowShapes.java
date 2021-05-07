@@ -1,24 +1,33 @@
-/****************************************************************************************
- *  SHADOW SHAPES 2.3
- *    By: Jonah Boe
- *
- *  This is a program which uses a connected camera to recognize shadows within its
- *    viewing angle. These shadows are then traced in order to identify any closed
- *    spaces (or shapes) formed by the shadows. The shapes are then stored as virtual
- *    physics objects which can then be interacted with.
- *
- *  Any use or reproduction of the code provided in this project for personal gain
- *    without written consent is prohibited.
- *
- *  Enjoy!!! :)
- ****************************************************************************************/
+/*
+ SHADOW SHAPES 3.0
+ By: Jonah Boe
+
+ This is a program which uses a camera to recognize shadows. These shadows are then
+ traced in order to identify any closed spaces (or shapes) formed by the shadows.
+ The shapes are then stored as virtual physics objects which can then be interacted
+ with.
+
+ Any use or reproduction of the code provided in this project for personal gain and
+ without written consent is prohibited.
+
+ Enjoy!!! :)
+ */
+
 import fisica.*;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.video.Capture;
 
-public class ShadowShapes extends PApplet{
+/**
+ * Main class.
+ */
+public class ShadowShapes extends PApplet {
 
+    // Some things we might want to adjust later
+    private static final int SHAPE_RESOLUTION = 1;
+    private static final int SHAPE_MIN_VERTICES = 60;
+    private static final int SHADOW_RESOLUTION = 25;
+    
     // We are going to need a camera
     private static Capture myCamera;
     // This will be our world of physics
@@ -28,26 +37,34 @@ public class ShadowShapes extends PApplet{
     // This will handle shadows interacting with shapes
     private static ShadowHandler shadowHandler;
     // This will store the shadow image
-    private static PImage shadows;
+    private static PImage mirroredImage;
 
-
+    /**
+     * Method for this class and starting the application.
+     *
+     * @param args Arguments passed in. Should be none.
+     */
     public static void main(String[] args) {
         PApplet.main("ShadowShapes");
     }
 
-    /****************************************************************************************
-     *  Settings():
-     *    Set up the display and framerate. Framerate can be higher, but this works fastest.
-     ****************************************************************************************/
+    /**
+     * Set up the display and framerate. Framerate can be higher, but this works fastest.
+     */
+    @Override
     public void settings(){
+        //fullScreen();
         size(1280,720);
     }
 
-    /****************************************************************************************
-     *  Setup():
-     *    Set up the display and any additional items.
-     ****************************************************************************************/
+    /**
+     * Set up the display and any additional items.
+     */
+    @Override
     public void setup() {
+        // Set the frame rate for development
+        frameRate(30);
+
         // Setup the camera
         String[] cameras = Capture.list();
         if (cameras.length == 0) {
@@ -58,7 +75,7 @@ public class ShadowShapes extends PApplet{
             for (int i = 0; i < cameras.length; i++) {
                 System.out.println(cameras[i]);
             }
-            myCamera = new Capture(this, cameras[0]);
+            myCamera = new Capture(this, width, height, cameras[0]);
             myCamera.start();
         }
 
@@ -66,55 +83,69 @@ public class ShadowShapes extends PApplet{
         Fisica.init(this);
         world = new FWorld();
         world.setGravity(0, 1000);
-        world.setEdges();
-        world.remove(world.left);
-        world.remove(world.right);
-        world.remove(world.top);
+        world.add(world.bottom);
         world.setEdgesRestitution((float)0.5);
 
+        // Setup our image for the current image being worked on
+        mirroredImage = new PImage(width, height);
+
         // Set up our shape finder
-        shapeHandler = new ShapeHandler(world);
+        shapeHandler = new ShapeHandler(this, world, SHAPE_RESOLUTION, SHAPE_MIN_VERTICES);
+        Thread shapeHandlerThread = new Thread(shadowHandler);
+        //shapeHandlerThread.start();
 
         // Setup the shadow handler
-        shadowHandler = new ShadowHandler(world);
-
-        // Setup our image for the current image being worked on
-        shadows = new PImage(1280, 720);
+        shadowHandler = new ShadowHandler(this, world, SHADOW_RESOLUTION);
+        Thread shadowHandlerThread = new Thread(shadowHandler);
+        shadowHandlerThread.start();
     }
 
-    /****************************************************************************************
-     *  draw():
-     *    Loop through the main functions of the program.
-     *    No return.
-     ****************************************************************************************/
+    /**
+     * Loop through the main functions of the program.
+     */
+    @Override
     public void draw() {
-        // Get new image content if cam is not in use.
+        // Get new image content if cam is ready.
         if (myCamera.available()) {
             // Grab new image
             myCamera.read();
-            myCamera.filter(THRESHOLD);
-            shadows = new ImageHandler().mirrorImage(myCamera);
-            image(shadows, 0, 0);
-            // Update where the shadows are located
-            shadowHandler.updateShadows(shadows);
-        }
-
-        // If there isn't a search currently going...
-        if (!shapeHandler.getIsSearching()) {
-            // And there is a new shape...
-            if (shapeHandler.getIsNewShape()) {
-                // Make a shape out of the frame.
-                shapeHandler.pushFrameToShape();
-                // And let the shapeHandler thread know we are good to go again.
-                shapeHandler.setIsNewShape(false);
-            }
-            // Start a search.
-            shapeHandler.startSearch(shadows);
+            myCamera.filter(THRESHOLD, (float) 0.5);
+            setImage(ImageHandler.mirrorImage(myCamera));
+            drawImage();
         }
 
         // Update the shapes world
+        updateWorld();
+    }
+
+    /**
+     * Advance all of the shapes and then draw them.
+     */
+    public synchronized void updateWorld() {
         world.draw();
         world.step();
+    }
+
+    /**
+     * Draw the mirrored image from the capture.
+     */
+    public synchronized void drawImage() {
+        image(mirroredImage, 0, 0);
+    }
+    /**
+     * Gets a copy of the mirrored image capture.
+     *
+     * @return PImage containing a copy of the mirrored Image.
+     */
+    public synchronized PImage getImage() {
+        return mirroredImage.copy();
+    }
+
+    /**
+     * Set the mirrored image.
+     */
+    public synchronized void setImage(PImage image) {
+        mirroredImage = image;
     }
 
 }

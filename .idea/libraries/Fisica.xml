@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Fisica">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/Fisica/fisica.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/Fisica/JBox2D-2.0.1-b250-Library.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

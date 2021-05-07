@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="library">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/Video/library/jna.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/Video/library/gst1-java-core-1.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/Video/library/video.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

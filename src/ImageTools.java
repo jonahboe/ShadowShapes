@@ -4,8 +4,6 @@ import processing.core.PImage;
  * Class for handling some additional static methods and variables.
  */
 public class ImageHandler {
-    public static final int BLACK = -16777216;
-    public static final int WHITE = -1;
 
     /**
      * Take an image and flip it horizontally.

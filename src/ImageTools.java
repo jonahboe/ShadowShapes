@@ -3,7 +3,7 @@ import processing.core.PImage;
 /**
  * Class for handling some additional static methods and variables.
  */
-public class ImageHandler {
+public class ImageTools {
 
     /**
      * Take an image and flip it horizontally.

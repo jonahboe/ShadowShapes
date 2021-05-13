@@ -1,11 +1,15 @@
+import Pixel.Position;
+import Pixel.PixelTools;
+import Pixel.SmartPosition;
 import fisica.FPoly;
 import fisica.FWorld;
 import processing.core.PImage;
 import processing.core.PVector;
 
 import java.awt.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -24,9 +28,10 @@ public class ShapeHandler implements Runnable {
 
     // Variables for monitoring shape creation
     private PImage image;
+    private boolean[][] field;
     private final int width;
     private final int height;
-    private List<FPoly> newShapes;
+    private ArrayList<FPoly> shapeSet;
 
     /**
      * Constructor.
@@ -36,13 +41,14 @@ public class ShapeHandler implements Runnable {
      * @param imageResolution How much to scale the image down before searching.
      * @param numberOfVerticesMin The minimum number of points a shape must have.
      */
-    ShapeHandler(ShadowShapes applet, FWorld world, float imageResolution, int numberOfVerticesMin) {
+    public ShapeHandler(ShadowShapes applet, FWorld world, float imageResolution, int numberOfVerticesMin) {
         this.applet = applet;
         this.world = world;
         this.imageResolution = imageResolution;
         this.numberOfVerticesMin = numberOfVerticesMin;
-        this.width = 0;
-        this.height = 0;
+        this.width = applet.width;
+        this.height = applet.height;
+        this.field = new boolean[this.width][this.height];
     }
 
     /**
@@ -52,9 +58,9 @@ public class ShapeHandler implements Runnable {
     public final void run() {
         while(true) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(1000);
                 setImage(applet.getImage());
-                lineSearch();
+                updateShapes();
             }
             catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -67,17 +73,6 @@ public class ShapeHandler implements Runnable {
     }
 
     /**
-     * Add shapes into the physics world.
-     */
-    public synchronized void addShapes() {
-        // Lets add our new shapes
-        if (newShapes != null) {
-            for (FPoly shape : newShapes)
-                world.add(shape);
-        }
-    }
-
-    /**
      * Set the image currently being searched.
      */
     public synchronized void setImage(PImage image) {
@@ -86,170 +81,87 @@ public class ShapeHandler implements Runnable {
     }
 
     /**
-     * Search for hard lines within the image.
-     *
-     * @return An array of vertices.
+     * Execute all tasks for updating shapes.
      */
-    private List<PVector> lineSearch() {
-
-        List<PVector> newFrame = new ArrayList<>();
-
-        // lines will show up true.
-        boolean lines[][] = new boolean[width][height];
-
-        // We'll go through each pixel and check if it is part of a line. We put it in an array.
-        // This means that the pixel will be different from at least one other near it.
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                // We want the first and last rows to just be false.
-                if (y < 2 || y > (height - 3)) {
-                    lines[x][y] = false;
-                }
-                // We want the right and left columns to just be false.
-                else if (x < 2 || x > (width - 3)) {
-                    lines[x][y] = false;
-                }
-                // We only need to look for shapes in the main part of the image.
-                // We will compare each pixel to those around it.
-                else {
-                    // Set up a variable to hold the color of the current pixel.
-                    int colorNow = image.get(x,y);
-                    // Look around this pixel
-                    ArrayList<PVector> ring = fetchRing(x, y);
-                    for (int i = 0; i < 8; i++) {
-                        int xPos = (int)ring.get(i).x;
-                        int yPos = (int)ring.get(i).y;
-
-                        // If they are different then we have found a line and are done.
-                        if (colorNow != image.get(xPos, yPos)) {
-                            // It is true, now bail.
-                            lines[x][y] = true;
-                            i = 8;
-                        }
-                        // Otherwise it isn't a line and we need to continue.
-                        else {
-                            lines[x][y] = false;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Now we want to use the lines we have found to look for shapes.
-        // This will be done by following the lines in a recursive search.
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                // If you hit a line.
-                if (lines[x][y]) {
-                    // we'll track position by x, y, and current cycle.
-                    PVector pos = new PVector(x,y,0);
-                    // Trace and return the shape if there is one.
-                    if (this.finderRecShape(newFrame, lines, pos))
-                    {
-                        FPoly shape = pushFrameToShape(newFrame);
-                        Color c = randomColor();
-                        shape.setFill(c.getRed(), c.getGreen(), c.getBlue());
-                        newShapes.add(shape);
-                    }
-                }
-            }
-        }
-
-        return null;
+    private void updateShapes() {
+        fieldImage(image);
+        ArrayList<LinkedList<SmartPosition>> frame = findFrames();
     }
 
     /**
-     * Search shape from boolean data matrix.
+     * Maps the image onto the boolean field.
      *
-     * @return The if a shape was found.
+     * @param image The old image.
      */
-    private boolean finderRecShape(List<PVector> newShape, boolean lines[][], PVector start) {
-
-        // Set up some variables
-        boolean shaping = true;
-        PVector next = start;
-
-        newShape.add(next);
-
-        while(shaping) {
-
-            // Set this location to false so it wont be searched again
-            lines[(int)next.x][(int)next.y] = false;
-
-            // Get the loop around our point
-            ArrayList<PVector> ring = fetchRing((int)next.x, (int)next.y);
-            for (int i = (int)next.z; i < 8; i++) {
-                PVector p = ring.get(i);
-
-                // If this path was a dud based on last item
-                if ((int)next.z == 7)
-                {
-                    // Go back a pixel if possible
-                    newShape.remove(newShape.size()-1);
-                    if (newShape.size()-1 != 0)
-                        next = newShape.get(newShape.size()-1);
-                    else
-                    {
-                        return false;
-                    }
-
-                    // Exit the for loop
-                    i = 8;
+    private void fieldImage(PImage image) {
+        // Go through every pixel
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Set the new pixel white
+                field[x][y] = false;
+                // We nee a 1 pixel buffer around the edge
+                if(x == 0 || x == width - 1 || y == 0 || y == height - 1) {
+                    field[x][y] = false;
+                    continue;
                 }
-
-                // If we returned to start of the shape
-                else if (p.x == start.x && p.y == start.y)
-                {
-                    // Fits the size
-                    if (newShape.size() > numberOfVerticesMin)
-                    {
-                        System.out.println("Found shape");
-                        return true;
+                // Given the color of our pixel
+                int color = image.get(x, y);
+                Position[] neighbors = PixelTools.fetchRing(x,y);
+                // If a neighboring pixel is not the same, set the new pixel dark
+                for (int i = 0; i < 8; i++) {
+                    if (image.get(neighbors[i].x, neighbors[i].y) != color) {
+                        field[x][y] = true;
+                        continue;
                     }
-
-                    // Else we are on a bad path
-                    else
-                    {
-                        // Go back a pixel
-                        newShape.remove(newShape.size()-1);
-                        next = newShape.get(newShape.size()-1);
-                        // Exit the for loop
-                        i = 8;
-                    }
-                }
-
-                // Otherwise just continue continue
-                else if (lines[(int)p.x][(int)p.y])
-                {
-                    // Set "z" to where we where on the ring.
-                    newShape.get(newShape.size()-1).z = i;
-                    // Add new shape and advance
-                    newShape.add(new PVector(p.x, p.y, 0));
-                    next = newShape.get(newShape.size()-1);
-                    i = 8;
-                }
-
-                // If this path was dad based on current item
-                else if (i == 7)
-                {
-                    // Go back a pixel
-                    newShape.remove(newShape.size()-1);
-                    if (newShape.size() != 0)
-                        next = newShape.get(newShape.size()-1);
-                    else
-                    {
-                        return false;
-                    }
-
-                    // Exit the for loop
-                    break;
                 }
             }
         }
+    }
 
-        // Should something unexpected happen cont.
-        return false;
-
+    ArrayList<LinkedList<SmartPosition>> findFrames() {
+        // A set of frames that could be shapes
+        ArrayList<LinkedList<SmartPosition>> frames = new ArrayList<>();
+        // Go through every pixel
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                // If we have hit a possible frame
+                if (field[x][y]) {
+                    // Create a new frame and add the head
+                    LinkedList<SmartPosition> frame = new LinkedList<>();
+                    field[x][y] = false;
+                    frame.push(new SmartPosition(x, y, PixelTools.fetchRing(x, y),0));
+                    // Go until even the head is removed
+                    while (!frame.isEmpty()) {
+                        // If there are more neighbors to check
+                        SmartPosition pixel = frame.peek();
+                        if (pixel.advance()) {
+                            // Get the next neighbors position
+                            int neighborX = pixel.neighbors[pixel.current].x;
+                            int neighborY = pixel.neighbors[pixel.current].y;
+                            // If the neighbor pixel is also the first pixel then add the new shape
+                            if (neighborX == x && neighborY == y && frame.size() >= numberOfVerticesMin) {
+                                System.out.println("f");
+                                frames.add(frame);
+                                break;
+                            }
+                            // If we can advance to another pixel
+                            if (field[neighborX][neighborY]) {
+                                // Then create a new smart pixel and add it
+                                field[neighborX][neighborY] = false;
+                                frame.push(new SmartPosition(neighborX, neighborY,
+                                        PixelTools.fetchRing(neighborX, neighborY),
+                                        (pixel.current + 4) % 8));
+                            }
+                        }
+                        // Otherwise, this pixel is useless
+                        else {
+                            frame.pop();
+                        }
+                    }
+                }
+            }
+        }
+        return frames;
     }
 
     /**
@@ -259,7 +171,7 @@ public class ShapeHandler implements Runnable {
      *
      * @return The new shape.
      */
-    public FPoly pushFrameToShape(List<PVector> frame) {
+    private FPoly pushFrameToShape(List<PVector> frame) {
         // Set up shape.
         FPoly shape;
         shape = new FPoly();
@@ -290,24 +202,14 @@ public class ShapeHandler implements Runnable {
     }
 
     /**
-     * Get the coordinates of the pixels around a given point.
-     *
-     * @param x Coordinate of point.
-     * @param y Coordinate of point.
-     * @return An array list of points around the location.
+     * Add new shape structures to the world.
      */
-    private ArrayList<PVector> fetchRing(int x, int y)
-    {
-        ArrayList<PVector> l = new ArrayList<>();
-        l.add(new PVector(x-1,y-1));
-        l.add(new PVector(x,y-1));
-        l.add(new PVector(x+1,y-1));
-        l.add(new PVector(x+1,y));
-        l.add(new PVector(x+1,y+1));
-        l.add(new PVector(x,y+1));
-        l.add(new PVector(x-1,y+1));
-        l.add(new PVector(x-1,y));
-        return l;
+    private synchronized void addShapes() {
+        if (shapeSet != null) {
+            for (FPoly p : shapeSet) {
+                world.add(p);
+            }
+        }
     }
 
     /**

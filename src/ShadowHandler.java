@@ -1,3 +1,4 @@
+import Pixel.PixelTools;
 import fisica.FBox;
 import fisica.FWorld;
 import processing.core.PImage;
@@ -35,7 +36,7 @@ public class ShadowHandler implements Runnable {
     public final void run() {
         while(true) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(50);
                 setImage(applet.getImage());
                 updateShadows();
             }
@@ -74,7 +75,7 @@ public class ShadowHandler implements Runnable {
         FBox newShadow;
         for (int y = 0; y < height; y += shadowResolution) {
             for (int x = 0; x < width; x += shadowResolution) {
-                if (image.get(x, y) == ImageHandler.BLACK) {
+                if (image.get(x, y) == PixelTools.BLACK) {
                     newShadow = new FBox(shadowResolution, shadowResolution);
                     newShadow.setPosition(x, y);
                     newShadow.setStatic(true);

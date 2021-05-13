@@ -1,15 +1,15 @@
 package Pixel;
 
-public class SmartPixel {
+public class SmartPosition extends Position {
 
-    public int x;
-    public int y;
     public int start;
     public int current;
+    public Position[] neighbors;
 
-    public SmartPixel(int x, int y, int start) {
+    public SmartPosition(int x, int y, Position[] neighbors, int start) {
         this.x = x;
         this.y = y;
+        this.neighbors = neighbors;
         this.start = start;
         this.current = start;
     }
@@ -17,10 +17,6 @@ public class SmartPixel {
     public boolean advance() {
         current = (current + 1) % 8;
         return current != start;
-    }
-
-    public boolean isSameAs(SmartPixel pixel) {
-        return this.x == pixel.x && this.y == pixel.y;
     }
 
 }

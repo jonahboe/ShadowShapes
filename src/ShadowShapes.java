@@ -25,7 +25,7 @@ public class ShadowShapes extends PApplet {
 
     // Some things we might want to adjust later
     private static final int SHAPE_RESOLUTION = 1;
-    private static final int SHAPE_MIN_VERTICES = 60;
+    private static final int SHAPE_MIN_VERTICES = 500;
     private static final int SHADOW_RESOLUTION = 25;
     
     // We are going to need a camera
@@ -63,7 +63,7 @@ public class ShadowShapes extends PApplet {
     @Override
     public void setup() {
         // Set the frame rate for development
-        frameRate(30);
+        frameRate(20);
 
         // Setup the camera
         String[] cameras = Capture.list();
@@ -91,8 +91,8 @@ public class ShadowShapes extends PApplet {
 
         // Set up our shape finder
         shapeHandler = new ShapeHandler(this, world, SHAPE_RESOLUTION, SHAPE_MIN_VERTICES);
-        Thread shapeHandlerThread = new Thread(shadowHandler);
-        //shapeHandlerThread.start();
+        Thread shapeHandlerThread = new Thread(shapeHandler);
+        shapeHandlerThread.start();
 
         // Setup the shadow handler
         shadowHandler = new ShadowHandler(this, world, SHADOW_RESOLUTION);
@@ -110,7 +110,7 @@ public class ShadowShapes extends PApplet {
             // Grab new image
             myCamera.read();
             myCamera.filter(THRESHOLD, (float) 0.5);
-            setImage(ImageHandler.mirrorImage(myCamera));
+            setImage(ImageTools.mirrorImage(myCamera));
             drawImage();
         }
 

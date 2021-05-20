@@ -24,7 +24,7 @@ import processing.video.Capture;
 public class ShadowShapes extends PApplet {
 
     // Some things we might want to adjust later
-    private static final int SHAPE_RESOLUTION = 1;
+    private static final int SHAPE_RESOLUTION = 40;
     private static final int SHAPE_MIN_VERTICES = 500;
     private static final int SHADOW_RESOLUTION = 25;
     
@@ -122,8 +122,13 @@ public class ShadowShapes extends PApplet {
      * Advance all of the shapes and then draw them.
      */
     public synchronized void updateWorld() {
-        world.draw();
-        world.step();
+        try {
+            world.draw();
+            world.step();
+        }
+        catch (AssertionError e) {
+            // Assertion error may occur if shape is invalid, but won't cause problems
+        }
     }
 
     /**

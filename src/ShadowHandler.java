@@ -79,9 +79,7 @@ public class ShadowHandler implements Runnable {
                     newShadow = new FBox(shadowResolution, shadowResolution);
                     newShadow.setPosition(x, y);
                     newShadow.setStatic(true);
-                    // TODO change back to noFill
-                    //newShadow.setNoFill();
-                    newShadow.setFill(255,0,0);
+                    newShadow.setNoFill();
                     newShadow.setNoStroke();
                     newShadow.setRestitution(0);
                     shadowsSet.add(newShadow);

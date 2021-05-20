@@ -24,27 +24,26 @@ public class ShapeHandler implements Runnable {
     // Minimum number of points it takes for a shape to be valid.
     private final int numberOfVerticesMin;
     // Size ratio of images.
-    private final float imageResolution;
+    private final float shapeResolution;
 
     // Variables for monitoring shape creation
     private PImage image;
     private boolean[][] field;
     private final int width;
     private final int height;
-    private ArrayList<FPoly> shapeSet;
 
     /**
      * Constructor.
      *
      * @param applet The applet controlling this handler.
      * @param world The physics world being drawn to.
-     * @param imageResolution How much to scale the image down before searching.
+     * @param shapeResolution How much to scale the image down before searching.
      * @param numberOfVerticesMin The minimum number of points a shape must have.
      */
-    public ShapeHandler(ShadowShapes applet, FWorld world, float imageResolution, int numberOfVerticesMin) {
+    public ShapeHandler(ShadowShapes applet, FWorld world, float shapeResolution, int numberOfVerticesMin) {
         this.applet = applet;
         this.world = world;
-        this.imageResolution = imageResolution;
+        this.shapeResolution = shapeResolution;
         this.numberOfVerticesMin = numberOfVerticesMin;
         this.width = applet.width;
         this.height = applet.height;
@@ -58,16 +57,12 @@ public class ShapeHandler implements Runnable {
     public final void run() {
         while(true) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
                 setImage(applet.getImage());
                 updateShapes();
             }
             catch (Exception e) {
                 System.out.println(e.getMessage());
-            }
-            finally {
-                // Lets add our new shapes
-                addShapes();
             }
         }
     }
@@ -85,7 +80,8 @@ public class ShapeHandler implements Runnable {
      */
     private void updateShapes() {
         fieldImage(image);
-        ArrayList<LinkedList<SmartPosition>> frame = findFrames();
+        ArrayList<FPoly> shapes = findFrames();
+        addShapes(shapes);
     }
 
     /**
@@ -118,9 +114,9 @@ public class ShapeHandler implements Runnable {
         }
     }
 
-    ArrayList<LinkedList<SmartPosition>> findFrames() {
+    ArrayList<FPoly> findFrames() {
         // A set of frames that could be shapes
-        ArrayList<LinkedList<SmartPosition>> frames = new ArrayList<>();
+        ArrayList<FPoly> shapes = new ArrayList<>();
         // Go through every pixel
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
@@ -140,12 +136,17 @@ public class ShapeHandler implements Runnable {
                             int neighborY = pixel.neighbors[pixel.current].y;
                             // If the neighbor pixel is also the first pixel then add the new shape
                             if (neighborX == x && neighborY == y && frame.size() >= numberOfVerticesMin) {
-                                System.out.println("f");
-                                frames.add(frame);
+                                shapes.add(pushFrameToShape(frame));
                                 break;
                             }
                             // If we can advance to another pixel
+                            // TODO make sure we haven't hit an edge
                             if (field[neighborX][neighborY]) {
+                                // Make sure edges aren't part of the shapes
+                                if (neighborX < 10 || neighborX > width - 10 &&
+                                        neighborY < 10 || neighborY > height - 10) {
+                                    break;
+                                }
                                 // Then create a new smart pixel and add it
                                 field[neighborX][neighborY] = false;
                                 frame.push(new SmartPosition(neighborX, neighborY,
@@ -161,7 +162,7 @@ public class ShapeHandler implements Runnable {
                 }
             }
         }
-        return frames;
+        return shapes;
     }
 
     /**
@@ -171,32 +172,23 @@ public class ShapeHandler implements Runnable {
      *
      * @return The new shape.
      */
-    private FPoly pushFrameToShape(List<PVector> frame) {
+    private FPoly pushFrameToShape(List<SmartPosition> frame) {
         // Set up shape.
         FPoly shape;
         shape = new FPoly();
         shape.setNoStroke();
-        shape.setDensity(50);
+        shape.setDensity(500);
         shape.setRestitution((float)0.3);
         shape.setFriction((float)0.3);
 
+        // Set the fill color
+        Color c = randomColor();
+        shape.setFill(c.getRed(), c.getGreen(), c.getBlue());
+
         // make the shape
-        float xMin = frame.get(0).x;
-        float xMax = xMin;
-        float yMin = frame.get(0).y;
-        float yMax = yMin;
-        for (PVector v: frame) {
-            float xx = v.x;
-            float yy = v.y;
-            shape.vertex(xx, yy);
-            if (v.x < xMin)
-                xMin = v.x;
-            if (v.x > xMax)
-                xMax = v.x;
-            if (v.y < yMin)
-                yMin = v.y;
-            if (v.y > yMax)
-                yMax = v.y;
+        for (int i = 0; i < frame.size(); i += shapeResolution) {
+            SmartPosition sp = frame.get(i);
+            shape.vertex(sp.x, sp.y);
         }
         return shape;
     }
@@ -204,11 +196,10 @@ public class ShapeHandler implements Runnable {
     /**
      * Add new shape structures to the world.
      */
-    private synchronized void addShapes() {
-        if (shapeSet != null) {
-            for (FPoly p : shapeSet) {
-                world.add(p);
-            }
+    private synchronized void addShapes(ArrayList<FPoly> shapes) {
+        // TODO check if shape exists at that position
+        for (FPoly p : shapes) {
+            world.add(p);
         }
     }
 

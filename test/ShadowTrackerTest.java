@@ -1,23 +1,12 @@
-/****************************************************************************************
- *  SHADOW SHAPES 2.3
- *    By: Jonah Boe
- *
- *  This is a program which uses a connected camera to recognize shadows within its
- *    viewing angle. These shadows are then traced in order to identify any closed
- *    spaces (or shapes) formed by the shadows. The shapes are then stored as virtual
- *    physics objects which can then be interacted with.
- *
- *  Any use or reproduction of the code provided in this project for personal gain
- *    without written consent is prohibited.
- *
- *  Enjoy!!! :)
- ****************************************************************************************/
 import processing.core.PApplet;
+import fisica.*;
 
-public class ShadowShapes extends PApplet{
+public class ShadowTrackerTest extends PApplet{
+
+    FWorld world;
 
     public static void main(String[] args) {
-        PApplet.main("ShadowShapes");
+        PApplet.main("ShadowTrackerTest");
     }
 
     /****************************************************************************************
@@ -35,7 +24,22 @@ public class ShadowShapes extends PApplet{
      ****************************************************************************************/
     @Override
     public void setup() {
-        background(255,0,0);
+        noStroke();
+
+        Fisica.init(this);
+        world = new FWorld();
+        world.setGravity(0, 100);
+        world.setEdges();
+        for (int i = 0; i < 10; i++) {
+            FCircle c = new FCircle(40);
+            c.setNoStroke();
+            c.setFill(255,0,0);
+            c.setPosition(640, 360);
+            c.setVelocity(0, 400);
+            c.setRestitution((float)0.3);
+            c.setDamping(0);
+            world.add(c);
+        }
     }
 
     /****************************************************************************************
@@ -45,11 +49,21 @@ public class ShadowShapes extends PApplet{
      ****************************************************************************************/
     @Override
     public void draw() {
-        
+        background(255);
+        fill(0);
+        rect(mouseX-50, mouseY-50, 100, 100);
+
+        world.step();
+        world.draw(this);
     }
 
+    /****************************************************************************************
+     *  keyPressed():
+     *    Loop through the main functions of the program.
+     *    No return.
+     ****************************************************************************************/
     @Override
-    public void keyPressed() {
+    public void mousePressed() {
         
     }
 }

@@ -1,6 +1,6 @@
 import processing.core.PImage;
 
-public class ImageHandler {
+public class ImageManip {
 
     /****************************************************************************************
      *  mirrorImage():

@@ -12,9 +12,15 @@
         },
         {
             "type": "java",
-            "name": "FinderTest",
+            "name": "ShapeFinderTest",
             "request": "launch",
-            "mainClass": "FinderTest"
+            "mainClass": "ShapeFinderTest"
+        },
+        {
+            "type": "java",
+            "name": "ShadowTrackerTest",
+            "request": "launch",
+            "mainClass": "ShadowTrackerTest"
         }
     ]
 }

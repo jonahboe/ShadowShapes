@@ -14,13 +14,20 @@
  ****************************************************************************************/
 import processing.core.PApplet;
 
-public class FinderTest extends PApplet{
+public class ShapeFinderTest extends PApplet{
+
+    // #region parameters
+
+    int FINDER_RESOLUTION = 10;
+    int FINDER_MAX_DEPTH = 800;
+
+    // #endregion parameters
 
     int mode = 0;
     Point startPoint = new Point(0,0);
 
     public static void main(String[] args) {
-        PApplet.main("FinderTest");
+        PApplet.main("ShapeFinderTest");
     }
 
     /****************************************************************************************
@@ -38,7 +45,6 @@ public class FinderTest extends PApplet{
      ****************************************************************************************/
     @Override
     public void setup() {
-        // Setup the camera
         background(255);
         noStroke();
         frameRate(20);
@@ -70,7 +76,7 @@ public class FinderTest extends PApplet{
                 mode = 0;
                 break;
             case 3:
-                Finder finder = new Finder(this, 10, 80);
+                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 80);
                 finder.findBoarder(startPoint, 0);
                 stroke(color(255,0,255));
                 for (int i = 0; i < finder.boarder.size() - 1; i++) {

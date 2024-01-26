@@ -77,7 +77,7 @@ public class ShapeFinderTest extends PApplet{
                 break;
             case 3:
                 ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 80);
-                finder.findBoarder(startPoint, 0);
+                finder.findShape(startPoint, 0);
                 stroke(color(255,0,255));
                 for (int i = 0; i < finder.boarder.size() - 1; i++) {
                     line(finder.boarder.get(i).x,finder.boarder.get(i).y,

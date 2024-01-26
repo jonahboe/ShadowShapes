@@ -16,7 +16,7 @@ public class ShapeFinder {
         this.maxDepth = maxDepth;
     }
 
-    public void findBoarder(Point me, int direction) {
+    public void findShape(Point me, int direction) {
         window.strokeWeight(1);
         for (int i = 0; i < 2; i++){
             Point next = new Point(0, 0);
@@ -54,7 +54,7 @@ public class ShapeFinder {
                 window.stroke(window.color(0, 0, 255));
                 window.line(me.x, me.y, next.x, next.y);
                 int newDirection = (direction + 1) % 4;
-                findBoarder(next, newDirection);
+                findShape(next, newDirection);
             }
 
             direction = (direction + 2) % 4;

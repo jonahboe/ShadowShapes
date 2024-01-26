@@ -4,6 +4,7 @@ import fisica.*;
 public class ShadowTrackerTest extends PApplet{
 
     FWorld world;
+    ShadowTracker tracker;
 
     public static void main(String[] args) {
         PApplet.main("ShadowTrackerTest");
@@ -25,6 +26,8 @@ public class ShadowTrackerTest extends PApplet{
     @Override
     public void setup() {
         noStroke();
+
+        tracker = new ShadowTracker(5, 300);
 
         Fisica.init(this);
         world = new FWorld();
@@ -52,6 +55,9 @@ public class ShadowTrackerTest extends PApplet{
         background(255);
         fill(0);
         rect(mouseX-50, mouseY-50, 100, 100);
+
+        tracker.trackShadows(this.getGraphics(), true);
+        tracker.updateCollisions(world);
 
         world.step();
         world.draw(this);

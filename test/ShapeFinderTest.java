@@ -27,7 +27,7 @@ public class ShapeFinderTest extends PApplet{
     int FINDER_MAX_DEPTH = 20;
 
     FWorld world;
-    ShapeFinder finder = new ShapeFinder(null, 10, 800, true);
+    ShapeFinder finder = new ShapeFinder(null, 10, 800);
 
     // #endregion parameters
 
@@ -60,16 +60,6 @@ public class ShapeFinderTest extends PApplet{
         world = new FWorld();
         world.setGravity(0, 200);
         world.setEdges();
-        for (int i = 0; i < 10; i++) {
-            FCircle c = new FCircle(40);
-            c.setNoStroke();
-            c.setFill(255,0,0);
-            c.setPosition(640, 360);
-            c.setVelocity(0, 400);
-            c.setRestitution((float)0.3);
-            c.setDamping(0);
-            world.add(c);
-        }
     }
 
     /****************************************************************************************
@@ -94,16 +84,16 @@ public class ShapeFinderTest extends PApplet{
             case 3:
                 if (!finder.isAlive()) {
                     if (finder.shape != null) {
-                        System.out.println("Shape Found!");
-                        finder.shape.setFill(200);
-                        world.add(finder.shape);
+                        if (world.getBody(finder.center.x, finder.center.y) == null) {
+                            finder.shape.setFill(200);
+                            world.add(finder.shape);
+                        }
                         mode = 2;
                         break;
                     }
                     else {
-                        System.out.println("Running ShapeFinder...");
                         BitImage image = new BitImage(this.getGraphics());
-                        finder = new ShapeFinder(image, 10, 800, true);
+                        finder = new ShapeFinder(image, 10, 800);
                         finder.start();
                     }
                 }

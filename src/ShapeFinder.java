@@ -4,25 +4,23 @@ import java.util.Random;
 import data.BitImage;
 import data.Point;
 import fisica.FPoly;
-import processing.core.PGraphics;
 
 public class ShapeFinder extends Thread{
 
     public FPoly shape = null;
+    public Point center;
 
     private BitImage window;
     private int resolution;
     private int maxDepth;
-    private boolean endless;
     private Random rand = new Random();
 
     ArrayList<Point> boarder;
 
-    ShapeFinder(BitImage window, int resolution, int maxDepth, boolean endless) {
+    ShapeFinder(BitImage window, int resolution, int maxDepth) {
         this.window = window;
         this.resolution = resolution;
         this.maxDepth = maxDepth;
-        this.endless = endless;
     }
 
     public void run() {
@@ -38,12 +36,18 @@ public class ShapeFinder extends Thread{
                 shape.setDensity(50);
                 shape.setRestitution((float)0.3);
                 shape.setFriction((float)0.3);
+                int xMin = window.width;
+                int xMax = 0;
+                int yMin = window.height;
+                int yMax = 0;
                 for (Point point : boarder) {
                     shape.vertex(point.x, point.y);
+                    xMin = xMin > point.x ? point.x : xMin;
+                    xMax = xMax < point.x ? point.x : xMax;
+                    yMin = yMin > point.y ? point.y : yMin;
+                    yMax = yMax < point.y ? point.y : yMax;
                 }
-                return;
-            }
-            if (!endless) {
+                center = new Point((xMin + xMax)/2, (yMin + yMax)/2);
                 return;
             }
         }

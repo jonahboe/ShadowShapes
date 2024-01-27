@@ -13,10 +13,12 @@ public class ShadowTracker {
     
     private int resolution;
     private int maxDistance;
+    private int forceMultiplier;
 
-    public ShadowTracker(int resolution, int maxDistance) {
+    public ShadowTracker(int resolution, int maxDistance, int forceMultiplier) {
         this.resolution = resolution;
         this.maxDistance = maxDistance;
+        this.forceMultiplier = forceMultiplier;
     }
 
     public void trackShadows(PGraphics window, boolean draw) {
@@ -102,7 +104,7 @@ public class ShadowTracker {
                 float dy = p.y - body.getBox2dBody().getWorldCenter().y;
                 if ((p.side == SmartPoint.Side.left && p.velocity < 0) ||
                     (p.side == SmartPoint.Side.right && p.velocity > 0))
-                    body.addForce(p.velocity*400, 0, dx, dy);
+                    body.addForce(p.velocity*body.getMass()*forceMultiplier, 0, dx, dy);
             }
         }
         for (SmartPoint p : vertical) {
@@ -112,7 +114,7 @@ public class ShadowTracker {
                 float dy = p.y - body.getBox2dBody().getWorldCenter().y;
                 if ((p.side == SmartPoint.Side.top && p.velocity < 0) ||
                     (p.side == SmartPoint.Side.botton && p.velocity > 0))
-                    body.addForce(0, p.velocity*400, dx, dy);
+                    body.addForce(0, p.velocity*body.getMass()*forceMultiplier, dx, dy);
             }
         }
     }

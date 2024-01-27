@@ -28,7 +28,7 @@ public class ShadowTrackerTest extends PApplet{
         noStroke();
         frameRate(20);
 
-        tracker = new ShadowTracker(5, 300);
+        tracker = new ShadowTracker(5, 300, 100);
 
         Fisica.init(this);
         world = new FWorld();

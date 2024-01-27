@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-import java.lang.Math;
+import java.lang.System;
 
 import fisica.FBody;
 import fisica.FWorld;
@@ -24,12 +24,12 @@ public class ShadowTracker {
         ArrayList<SmartPoint> newV = new ArrayList<>();
 
         // Get the new shadow edges on the x-asis.
-        for (int y = 1; y < window.height; y += resolution) {
-            for (int x = 1; x < window.width; x++) {
-                if (window.get(x, y) == window.color(0) && window.get(x-1, y) == window.color(255))
+        for (int y = 0; y < window.height; y += resolution) {
+            for (int x = 0; x < window.width-1; x++) {
+                if (window.get(x, y) == window.color(255) && window.get(x+1, y) == window.color(0))
                     newH.add(new SmartPoint(x, y, SmartPoint.Side.left));
-                else if (window.get(x, y) == window.color(255) && window.get(x-1, y) == window.color(0))
-                    newH.add(new SmartPoint(x-1, y, SmartPoint.Side.right));
+                else if (window.get(x, y) == window.color(0) && window.get(x+1, y) == window.color(255))
+                    newH.add(new SmartPoint(x+1, y, SmartPoint.Side.right));
             }
         }
         // Find the closest previouse point, and set the velocity.
@@ -43,23 +43,17 @@ public class ShadowTracker {
             }
 
             int dist = window.width;
-            int dx = 0;
-            int dy = 0;
             for (SmartPoint lp : horisontal) {
-                int nd = (int) Math.sqrt((np.x - lp.x)^2 + (np.x - lp.x)^2);
-                if (nd < dist) {
-                    dist = nd;
-                    dx = np.x - lp.x;
-                    dy = np.y - lp.y;
+                int newDist = np.x - lp.x;
+                if (np.y == lp.y && newDist < dist) {
+                    dist = newDist;
                 }
             }
-            if (maxDistance < dist) {
-                np.dx = dx * 2;
-                np.dy = dy * 2;
+            if (maxDistance > dist) {
+                np.dx = dist * 200;
             }
             else {
                 np.dx = 0;
-                np.dy = 0;
             }
         }
         // Update the main values
@@ -72,7 +66,7 @@ public class ShadowTracker {
             if (body != null) {
                 float dx = p.x - body.getBox2dBody().getWorldCenter().x;
                 float dy = p.y - body.getBox2dBody().getWorldCenter().y;
-                body.setVelocity(p.dx, p.dy);
+                body.addForce(p.dx, p.dy, dx, dy);
             }
         }
     }

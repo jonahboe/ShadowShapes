@@ -26,12 +26,13 @@ public class ShadowTrackerTest extends PApplet{
     @Override
     public void setup() {
         noStroke();
+        frameRate(20);
 
         tracker = new ShadowTracker(5, 300);
 
         Fisica.init(this);
         world = new FWorld();
-        world.setGravity(0, 100);
+        world.setGravity(0, 200);
         world.setEdges();
         for (int i = 0; i < 10; i++) {
             FCircle c = new FCircle(40);

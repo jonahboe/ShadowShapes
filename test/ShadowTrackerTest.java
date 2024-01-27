@@ -28,8 +28,6 @@ public class ShadowTrackerTest extends PApplet{
         noStroke();
         frameRate(20);
 
-        tracker = new ShadowTracker(5, 300, 100, true);
-
         Fisica.init(this);
         world = new FWorld();
         world.setGravity(0, 200);
@@ -44,6 +42,8 @@ public class ShadowTrackerTest extends PApplet{
             c.setDamping(0);
             world.add(c);
         }
+
+        tracker = new ShadowTracker(world, 5, 300, 100, true);
     }
 
     /****************************************************************************************
@@ -58,7 +58,7 @@ public class ShadowTrackerTest extends PApplet{
         rect(mouseX-50, mouseY-50, 100, 100);
 
         tracker.trackShadows(this.getGraphics());
-        tracker.updateCollisions(world);
+        tracker.updateCollisions(this.getGraphics());
 
         world.step();
         world.draw(this);

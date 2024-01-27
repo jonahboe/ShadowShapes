@@ -1,20 +1,23 @@
 import java.util.ArrayList;
 
 import fisica.FBody;
+import fisica.FBox;
 import fisica.FWorld;
 import processing.core.PGraphics;
 
 public class ShadowTracker {
 
-    public ArrayList<SmartPoint> horisontal = new ArrayList<>();
-    public ArrayList<SmartPoint> vertical = new ArrayList<>();
-    
+    private ArrayList<FBox> shadows = new ArrayList<>();
+    private ArrayList<SmartPoint> horisontal = new ArrayList<>();
+    private ArrayList<SmartPoint> vertical = new ArrayList<>();
+    private FWorld world;
     private int resolution;
     private int maxDistance;
     private int forceMultiplier;
     private boolean render;
 
-    public ShadowTracker(int resolution, int maxDistance, int forceMultiplier, boolean render) {
+    public ShadowTracker(FWorld world, int resolution, int maxDistance, int forceMultiplier, boolean render) {
+        this.world = world;
         this.resolution = resolution;
         this.maxDistance = maxDistance;
         this.forceMultiplier = forceMultiplier;
@@ -96,7 +99,25 @@ public class ShadowTracker {
         vertical = newV;
     }
 
-    public void updateCollisions(FWorld world) {
+    public void updateCollisions(PGraphics window) {
+        // Remove all old shadows, and add the new ones.
+        while (shadows.size() > 0) {
+            world.remove(shadows.remove(0));
+        }
+        for (int x = 0; x < window.width; x += resolution) {
+            for (int y = 0; y < window.height; y += resolution) {
+                if (window.get(x+1,y+1) == window.color(0)) {
+                    FBox box = new FBox(resolution, resolution);
+                    box.setPosition(x, y);
+                    box.setStatic(true);
+                    box.setFill(100);
+                    shadows.add(box);
+                    world.add(box);
+                }
+            }
+        }
+
+        // Adjust the bounce of objects that hit the shadows
         for (SmartPoint p : horisontal) {
             FBody body = world.getBody(p.x, p.y);
             if (body != null) {

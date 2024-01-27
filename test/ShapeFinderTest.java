@@ -14,7 +14,6 @@
  ****************************************************************************************/
 import data.BitImage;
 import data.Point;
-import fisica.FCircle;
 import fisica.FWorld;
 import fisica.Fisica;
 import processing.core.PApplet;

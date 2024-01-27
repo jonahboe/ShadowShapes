@@ -1,7 +1,6 @@
 package data;
 
 import processing.core.PGraphics;
-import processing.core.PImage;
 
 public class BitImage {
 

@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-import java.lang.System;
-
 import fisica.FBody;
 import fisica.FWorld;
 import processing.core.PGraphics;
@@ -14,14 +12,16 @@ public class ShadowTracker {
     private int resolution;
     private int maxDistance;
     private int forceMultiplier;
+    private boolean render;
 
-    public ShadowTracker(int resolution, int maxDistance, int forceMultiplier) {
+    public ShadowTracker(int resolution, int maxDistance, int forceMultiplier, boolean render) {
         this.resolution = resolution;
         this.maxDistance = maxDistance;
         this.forceMultiplier = forceMultiplier;
+        this.render = render;
     }
 
-    public void trackShadows(PGraphics window, boolean draw) {
+    public void trackShadows(PGraphics window) {
         ArrayList<SmartPoint> newH = new ArrayList<>();
         ArrayList<SmartPoint> newV = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class ShadowTracker {
 
         // Find the closest previouse point, and set the velocity.
         for (SmartPoint np : newH) {
-            if (draw) {
+            if (render) {
                 if (np.side == SmartPoint.Side.left)
                     window.fill(0,255,0);
                 else if (np.side == SmartPoint.Side.right)
@@ -68,7 +68,7 @@ public class ShadowTracker {
             }
         }
         for (SmartPoint np : newV) {
-            if (draw) {
+            if (render) {
                 if (np.side == SmartPoint.Side.top)
                     window.fill(0,255,0);
                 else if (np.side == SmartPoint.Side.botton)

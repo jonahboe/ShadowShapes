@@ -19,7 +19,7 @@ public class ShapeFinderTest extends PApplet{
     // #region parameters
 
     int FINDER_RESOLUTION = 10;
-    int FINDER_MAX_DEPTH = 800;
+    int FINDER_MAX_DEPTH = 20;
 
     // #endregion parameters
 
@@ -76,17 +76,19 @@ public class ShapeFinderTest extends PApplet{
                 mode = 0;
                 break;
             case 3:
-                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 80);
-                finder.findShape(startPoint, 0);
-                stroke(color(255,0,255));
-                for (int i = 0; i < finder.boarder.size() - 1; i++) {
-                    line(finder.boarder.get(i).x,finder.boarder.get(i).y,
-                         finder.boarder.get(i+1).x,finder.boarder.get(i+1).y);
+                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 800, true);
+
+                if (finder.findShape(startPoint, 0, 0) == 0 && finder.boarder.size() > 2) {
+                    stroke(color(255,0,255));
+                    for (int i = 0; i < finder.boarder.size() - 1; i++) {
+                        line(finder.boarder.get(i).x,finder.boarder.get(i).y,
+                            finder.boarder.get(i+1).x,finder.boarder.get(i+1).y);
+                    }
+                    line(finder.boarder.get(0).x,finder.boarder.get(0).y,
+                        finder.boarder.get(finder.boarder.size() - 1).x,finder.boarder.get(finder.boarder.size() - 1).y);
+                    noStroke();
+                    mode = 0;
                 }
-                line(finder.boarder.get(0).x,finder.boarder.get(0).y,
-                     finder.boarder.get(finder.boarder.size() - 1).x,finder.boarder.get(finder.boarder.size() - 1).y);
-                noStroke();
-                mode = 0;
                 break;
             default:
                 break;

@@ -32,6 +32,15 @@ public class ShadowTracker {
                     newH.add(new SmartPoint(x+1, y, SmartPoint.Side.right));
             }
         }
+        for (int x = 0; x < window.width; x += resolution) {
+            for (int y = 0; y < window.height-1; y++) {
+                if (window.get(x, y) == window.color(255) && window.get(x, y+1) == window.color(0))
+                    newV.add(new SmartPoint(x, y, SmartPoint.Side.top));
+                else if (window.get(x, y) == window.color(0) && window.get(x, y+1) == window.color(255))
+                    newV.add(new SmartPoint(x, y+1, SmartPoint.Side.botton));
+            }
+        }
+
         // Find the closest previouse point, and set the velocity.
         for (SmartPoint np : newH) {
             if (draw) {
@@ -45,19 +54,44 @@ public class ShadowTracker {
             int dist = window.width;
             for (SmartPoint lp : horisontal) {
                 int newDist = np.x - lp.x;
-                if (np.y == lp.y && newDist < dist) {
+                if (np.y == lp.y && np.side == lp.side && newDist < dist) {
                     dist = newDist;
                 }
             }
             if (maxDistance > dist) {
-                np.dx = dist * 200;
+                np.velocity = dist;
             }
             else {
-                np.dx = 0;
+                np.velocity = 0;
             }
         }
+        for (SmartPoint np : newV) {
+            if (draw) {
+                if (np.side == SmartPoint.Side.top)
+                    window.fill(0,255,0);
+                else if (np.side == SmartPoint.Side.botton)
+                    window.fill(0,0,255);
+                window.ellipse(np.x, np.y, 2, 2);
+            }
+
+            int dist = window.height;
+            for (SmartPoint lp : vertical) {
+                int newDist = np.y - lp.y;
+                if (np.x == lp.x && np.side == lp.side && newDist < dist) {
+                    dist = newDist;
+                }
+            }
+            if (maxDistance > dist) {
+                np.velocity = dist;
+            }
+            else {
+                np.velocity = 0;
+            }
+        }
+
         // Update the main values
         horisontal = newH;
+        vertical = newV;
     }
 
     public void updateCollisions(FWorld world) {
@@ -66,7 +100,19 @@ public class ShadowTracker {
             if (body != null) {
                 float dx = p.x - body.getBox2dBody().getWorldCenter().x;
                 float dy = p.y - body.getBox2dBody().getWorldCenter().y;
-                body.addForce(p.dx, p.dy, dx, dy);
+                if ((p.side == SmartPoint.Side.left && p.velocity < 0) ||
+                    (p.side == SmartPoint.Side.right && p.velocity > 0))
+                    body.addForce(p.velocity*400, 0, dx, dy);
+            }
+        }
+        for (SmartPoint p : vertical) {
+            FBody body = world.getBody(p.x, p.y);
+            if (body != null) {
+                float dx = p.x - body.getBox2dBody().getWorldCenter().x;
+                float dy = p.y - body.getBox2dBody().getWorldCenter().y;
+                if ((p.side == SmartPoint.Side.top && p.velocity < 0) ||
+                    (p.side == SmartPoint.Side.botton && p.velocity > 0))
+                    body.addForce(0, p.velocity*400, dx, dy);
             }
         }
     }

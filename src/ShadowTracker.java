@@ -111,7 +111,13 @@ public class ShadowTracker {
                     FBox box = new FBox(resolution, resolution);
                     box.setPosition(x, y);
                     box.setStatic(true);
-                    box.setFill(100);
+                    if (render) {
+                        box.setFill(100);
+                    }
+                    else {
+                        box.setNoFill();
+                        box.setNoStroke();
+                    }
                     shadows.add(box);
                     world.add(box);
                 }

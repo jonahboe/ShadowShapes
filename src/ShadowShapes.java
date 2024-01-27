@@ -12,9 +12,20 @@
  *
  *  Enjoy!!! :)
  ****************************************************************************************/
+import data.BitImage;
+import fisica.FWorld;
+import fisica.Fisica;
 import processing.core.PApplet;
+import processing.video.Capture;
 
 public class ShadowShapes extends PApplet{
+
+    int FINDER_RESOLUTION = 10;
+    int FINDER_MAX_DEPTH = 800;
+
+    Capture video;
+    FWorld world;
+    ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
 
     public static void main(String[] args) {
         PApplet.main("ShadowShapes");
@@ -35,7 +46,32 @@ public class ShadowShapes extends PApplet{
      ****************************************************************************************/
     @Override
     public void setup() {
-        background(255,0,0);
+        // Processing setup
+        frameRate(30);
+        noStroke();
+
+        // Video setup
+        String[] cameras = Capture.list();
+        if (cameras.length == 0) {
+            println("There are no cameras available for capture.");
+            exit();
+        } else {
+            println("Available cameras:");
+            for (int i = 0; i < cameras.length; i++) {
+                println(cameras[i]);
+            }
+        }
+        video = new Capture(this, cameras[0]);
+        video.start();   
+
+        // Fisica setup
+        Fisica.init(this);
+        world = new FWorld();
+        world.setGravity(0, 200);
+        world.setEdges();
+        world.remove(world.top);
+        world.remove(world.left);
+        world.remove(world.right);
     }
 
     /****************************************************************************************
@@ -45,11 +81,25 @@ public class ShadowShapes extends PApplet{
      ****************************************************************************************/
     @Override
     public void draw() {
-        
-    }
+        // Video actions
+        if (video.available()) {
+            video.read();
+        }
+        image(video, 0, 0);
 
-    @Override
-    public void keyPressed() {
-        
+        // Fisica action
+        world.step();
+        world.draw(this);
+
+        // Finder action
+        /*if (!finder.isAlive()) {
+            if (finder.shape != null && world.getBody(finder.center.x, finder.center.y) == null) {
+                finder.shape.setFill(200);
+                world.add(finder.shape);
+            }
+            BitImage image = new BitImage(this.getGraphics());
+            finder = new ShapeFinder(image, 10, 800);
+            finder.start();
+        }*/
     }
 }

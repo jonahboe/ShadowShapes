@@ -23,7 +23,7 @@ public class ShapeFinderTest extends PApplet{
     // #region parameters
 
     int FINDER_RESOLUTION = 10;
-    int FINDER_MAX_DEPTH = 20;
+    int FINDER_MAX_DEPTH = 800;
 
     FWorld world;
     ShapeFinder finder = new ShapeFinder(null, 10, 800);
@@ -31,7 +31,6 @@ public class ShapeFinderTest extends PApplet{
     // #endregion parameters
 
     int mode = 0;
-    Point startPoint = new Point(0,0);
 
     public static void main(String[] args) {
         PApplet.main("ShapeFinderTest");

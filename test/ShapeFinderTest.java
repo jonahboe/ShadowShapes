@@ -12,6 +12,9 @@
  *
  *  Enjoy!!! :)
  ****************************************************************************************/
+import fisica.FCircle;
+import fisica.FWorld;
+import fisica.Fisica;
 import processing.core.PApplet;
 
 public class ShapeFinderTest extends PApplet{
@@ -20,6 +23,8 @@ public class ShapeFinderTest extends PApplet{
 
     int FINDER_RESOLUTION = 10;
     int FINDER_MAX_DEPTH = 20;
+
+    FWorld world;
 
     // #endregion parameters
 
@@ -47,7 +52,21 @@ public class ShapeFinderTest extends PApplet{
     public void setup() {
         background(255);
         noStroke();
-        frameRate(20);
+
+        Fisica.init(this);
+        world = new FWorld();
+        world.setGravity(0, 200);
+        world.setEdges();
+        for (int i = 0; i < 10; i++) {
+            FCircle c = new FCircle(40);
+            c.setNoStroke();
+            c.setFill(255,0,0);
+            c.setPosition(640, 360);
+            c.setVelocity(0, 400);
+            c.setRestitution((float)0.3);
+            c.setDamping(0);
+            world.add(c);
+        }
     }
 
     /****************************************************************************************
@@ -65,34 +84,34 @@ public class ShapeFinderTest extends PApplet{
                 }
                 break;
             case 1:
-                if (mousePressed) {
-                    startPoint = new Point(mouseX, mouseY);
-                    fill(color(255,0,0));
-                    ellipse(mouseX, mouseY, 5, 5);
-                }
+                background(255);
                 break;
             case 2:
                 background(255);
                 mode = 0;
                 break;
             case 3:
-                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 800, true);
+                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 800, false, true);
+                finder.start();
 
-                if (finder.findShape(startPoint, 0, 0) == 0 && finder.boarder.size() > 2) {
-                    stroke(color(255,0,255));
-                    for (int i = 0; i < finder.boarder.size() - 1; i++) {
-                        line(finder.boarder.get(i).x,finder.boarder.get(i).y,
-                            finder.boarder.get(i+1).x,finder.boarder.get(i+1).y);
-                    }
-                    line(finder.boarder.get(0).x,finder.boarder.get(0).y,
-                        finder.boarder.get(finder.boarder.size() - 1).x,finder.boarder.get(finder.boarder.size() - 1).y);
-                    noStroke();
+                while (finder.isAlive()) {
+                    // Do nothing
+                }
+                if (finder.shape != null) {
+                    finder.shape.setFill(200);
+                    world.add(finder.shape);
+                    mode = 1;
+                }
+                else {
                     mode = 0;
                 }
                 break;
             default:
                 break;
         }
+
+        world.step();
+        world.draw(this);
     }
 
     @Override

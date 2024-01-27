@@ -1,21 +1,52 @@
 import java.util.ArrayList;
+import java.util.Random;
 
+import fisica.FPoly;
 import processing.core.PGraphics;
 
-public class ShapeFinder {
+public class ShapeFinder extends Thread{
 
-    PGraphics window;
-    int resolution;
-    int maxDepth;
-    boolean render;
+    public FPoly shape = null;
 
-    ArrayList<Point> boarder = new ArrayList<Point>();
+    private PGraphics window;
+    private int resolution;
+    private int maxDepth;
+    private boolean endless;
+    private boolean render;
+    private Random rand = new Random();
 
-    ShapeFinder(PGraphics window, int resolution, int maxDepth, boolean render) {
+    ArrayList<Point> boarder;
+
+    ShapeFinder(PGraphics window, int resolution, int maxDepth, boolean endless, boolean render) {
         this.window = window;
         this.resolution = resolution;
         this.maxDepth = maxDepth;
+        this.endless = endless;
         this.render = render;
+    }
+
+    public void start() {
+        // Try to find a shape at some random point.
+        Point startPoint = new Point(rand.nextInt(window.width), rand.nextInt(window.height));
+        while(true)
+        {
+            boarder = new ArrayList<Point>();
+            if (findShape(startPoint, 0, 0) == 0 && boarder.size() > 2) {
+                // If we find something, set the shape and return
+                shape = new FPoly();
+                shape.setNoStroke();
+                shape.setDensity(50);
+                shape.setRestitution((float)0.3);
+                shape.setFriction((float)0.3);
+                for (Point point : boarder) {
+                    shape.vertex(point.x, point.y);
+                }
+                return;
+            }
+            if (!endless) {
+                return;
+            }
+        }
     }
 
     public int findShape(Point me, int direction, int count) {

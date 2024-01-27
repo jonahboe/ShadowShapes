@@ -1,3 +1,4 @@
+package data;
 import processing.core.PImage;
 
 public class ImageManip {
@@ -6,7 +7,7 @@ public class ImageManip {
      *  mirrorImage():
      *    Take an image and flip it horizontally.
      ****************************************************************************************/
-    public PImage mirrorImage(PImage initial) {
+    public static PImage mirrorImage(PImage initial) {
         // Set up our bounds
         int this_x = initial.width;
         int this_y = initial.height;
@@ -24,4 +25,6 @@ public class ImageManip {
         // return the image
         return mirror;
     }
+
+    
 }

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+import data.SmartPoint;
 import fisica.FBody;
 import fisica.FBox;
 import fisica.FWorld;

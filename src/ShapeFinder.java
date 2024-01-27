@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Random;
 
+import data.BitImage;
+import data.Point;
 import fisica.FPoly;
 import processing.core.PGraphics;
 
@@ -8,28 +10,26 @@ public class ShapeFinder extends Thread{
 
     public FPoly shape = null;
 
-    private PGraphics window;
+    private BitImage window;
     private int resolution;
     private int maxDepth;
     private boolean endless;
-    private boolean render;
     private Random rand = new Random();
 
     ArrayList<Point> boarder;
 
-    ShapeFinder(PGraphics window, int resolution, int maxDepth, boolean endless, boolean render) {
+    ShapeFinder(BitImage window, int resolution, int maxDepth, boolean endless) {
         this.window = window;
         this.resolution = resolution;
         this.maxDepth = maxDepth;
         this.endless = endless;
-        this.render = render;
     }
 
-    public void start() {
+    public void run() {
         // Try to find a shape at some random point.
-        Point startPoint = new Point(rand.nextInt(window.width), rand.nextInt(window.height));
         while(true)
         {
+            Point startPoint = new Point(rand.nextInt(window.width), rand.nextInt(window.height));
             boarder = new ArrayList<Point>();
             if (findShape(startPoint, 0, 0) == 0 && boarder.size() > 2) {
                 // If we find something, set the shape and return
@@ -56,7 +56,6 @@ public class ShapeFinder extends Thread{
             return -1;
         }
 
-        window.strokeWeight(1);
         for (int i = 0; i < 2; i++){
             Point next = new Point(0, 0);
             switch (direction) {
@@ -82,26 +81,17 @@ public class ShapeFinder extends Thread{
                 return -1;
             }
             // If the next pixel is black (shadow), then add that pixel the the boarder.
-            else if (window.get(next.x, next.y) == window.color(0)) {
-                if (render) {
-                    window.stroke(window.color(0, 255, 0));
-                    window.line(me.x, me.y, next.x, next.y);
-                }
+            else if (window.get(next.x, next.y) == BitImage.status.edge) {
+                window.line(me.x, me.y, next.x, next.y);
                 boarder.add(next);
             }
             // If the next pixel is not white, then end this branch.
-            else if (window.get(next.x, next.y) != window.color(255)) {
-                if (render) {
-                    window.stroke(window.color(255, 255, 0));
-                    window.line(me.x, me.y, next.x, next.y);
-                }
+            else if (window.get(next.x, next.y) == BitImage.status.searched) {
+                window.line(me.x, me.y, next.x, next.y);
             }
             // Otherwise, do a recursive check to the left and then right.
             else {
-                if (render) {
-                    window.stroke(window.color(0, 0, 255));
-                    window.line(me.x, me.y, next.x, next.y);
-                }
+                window.line(me.x, me.y, next.x, next.y);
                 int newDirection = (direction + 1) % 4;
                 if (findShape(next, newDirection, count + 1) == -1) {
                     return -1;
@@ -109,8 +99,6 @@ public class ShapeFinder extends Thread{
             }
             direction = (direction + 2) % 4;
         }
-
-        window.noStroke();
 
         return 0;
     }

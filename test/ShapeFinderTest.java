@@ -12,6 +12,8 @@
  *
  *  Enjoy!!! :)
  ****************************************************************************************/
+import data.BitImage;
+import data.Point;
 import fisica.FCircle;
 import fisica.FWorld;
 import fisica.Fisica;
@@ -25,6 +27,7 @@ public class ShapeFinderTest extends PApplet{
     int FINDER_MAX_DEPTH = 20;
 
     FWorld world;
+    ShapeFinder finder = new ShapeFinder(null, 10, 800, true);
 
     // #endregion parameters
 
@@ -84,26 +87,25 @@ public class ShapeFinderTest extends PApplet{
                 }
                 break;
             case 1:
-                background(255);
                 break;
             case 2:
                 background(255);
-                mode = 0;
                 break;
             case 3:
-                ShapeFinder finder = new ShapeFinder(this.getGraphics(), 10, 800, false, true);
-                finder.start();
-
-                while (finder.isAlive()) {
-                    // Do nothing
-                }
-                if (finder.shape != null) {
-                    finder.shape.setFill(200);
-                    world.add(finder.shape);
-                    mode = 1;
-                }
-                else {
-                    mode = 0;
+                if (!finder.isAlive()) {
+                    if (finder.shape != null) {
+                        System.out.println("Shape Found!");
+                        finder.shape.setFill(200);
+                        world.add(finder.shape);
+                        mode = 2;
+                        break;
+                    }
+                    else {
+                        System.out.println("Running ShapeFinder...");
+                        BitImage image = new BitImage(this.getGraphics());
+                        finder = new ShapeFinder(image, 10, 800, true);
+                        finder.start();
+                    }
                 }
                 break;
             default:

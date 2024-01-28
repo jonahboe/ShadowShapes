@@ -16,6 +16,7 @@ import data.BitImage;
 import fisica.FWorld;
 import fisica.Fisica;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.video.Capture;
 
 public class ShadowShapes extends PApplet{
@@ -23,6 +24,7 @@ public class ShadowShapes extends PApplet{
     int FINDER_RESOLUTION = 10;
     int FINDER_MAX_DEPTH = 800;
 
+    PImage image;
     Capture video;
     FWorld world;
     ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
@@ -58,7 +60,7 @@ public class ShadowShapes extends PApplet{
         } else {
             println("Available cameras:");
             for (int i = 0; i < cameras.length; i++) {
-                println(cameras[i]);
+                println(i + ": " + cameras[i]);
             }
         }
         video = new Capture(this, cameras[0]);
@@ -85,7 +87,7 @@ public class ShadowShapes extends PApplet{
         if (video.available()) {
             video.read();
         }
-        image(video, 0, 0);
+        image(video, 0, 0, width, height);
 
         // Fisica action
         world.step();
@@ -98,7 +100,7 @@ public class ShadowShapes extends PApplet{
                 world.add(finder.shape);
             }
             BitImage image = new BitImage(this.getGraphics());
-            finder = new ShapeFinder(image, 10, 800);
+            finder = new ShapeFinder(image, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
             finder.start();
         }*/
     }

@@ -13,6 +13,7 @@
  *  Enjoy!!! :)
  ****************************************************************************************/
 import data.BitImage;
+import data.ImageManip;
 import fisica.FWorld;
 import fisica.Fisica;
 import processing.core.PApplet;
@@ -24,10 +25,12 @@ public class ShadowShapes extends PApplet{
     int FINDER_RESOLUTION = 10;
     int FINDER_MAX_DEPTH = 800;
 
-    PImage image;
     Capture video;
     FWorld world;
     ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
+
+    PImage initImage;
+    PImage image;
 
     public static void main(String[] args) {
         PApplet.main("ShadowShapes");
@@ -65,6 +68,9 @@ public class ShadowShapes extends PApplet{
         }
         video = new Capture(this, cameras[0]);
         video.start();   
+        while (!video.available());
+        video.read();
+        initImage = video.get();
 
         // Fisica setup
         Fisica.init(this);
@@ -86,12 +92,15 @@ public class ShadowShapes extends PApplet{
         // Video actions
         if (video.available()) {
             video.read();
+            image = ImageManip.diff(this, video, initImage);
+            image = ImageManip.mirrorImage(image);
         }
-        image(video, 0, 0, width, height);
+        image(image, 0, 0, width, height);
 
         // Fisica action
         world.step();
         world.draw(this);
+        
 
         // Finder action
         /*if (!finder.isAlive()) {
@@ -103,5 +112,14 @@ public class ShadowShapes extends PApplet{
             finder = new ShapeFinder(image, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
             finder.start();
         }*/
+    }
+
+    @Override
+    public void keyPressed() {
+        if (key == ' ') {
+            while (!video.available());
+            video.read();
+            initImage = video.get();
+        }
     }
 }

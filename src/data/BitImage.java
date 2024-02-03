@@ -1,6 +1,7 @@
 package data;
 
 import processing.core.PGraphics;
+import processing.core.PImage;
 
 public class BitImage {
 
@@ -18,6 +19,22 @@ public class BitImage {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (graphics.get(x,y) == graphics.color(0)) {
+                    this.image[y][x] = color.black;
+                }
+                else {
+                    this.image[y][x] = color.white;
+                }
+            }
+        }
+    }
+
+    public BitImage(PImage image) {
+        this.width = image.width;
+        this.height = image.height;
+        this.image = new color[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (image.get(x,y) == 0x000000) {
                     this.image[y][x] = color.black;
                 }
                 else {

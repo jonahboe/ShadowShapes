@@ -2,9 +2,7 @@ package data;
 
 import java.lang.Math;
 
-import data.BitImage.color;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PImage;
 
 public class ImageManip {

@@ -13,7 +13,6 @@
  *  Enjoy!!! :)
  ****************************************************************************************/
 import data.BitImage;
-import data.Point;
 import fisica.FWorld;
 import fisica.Fisica;
 import processing.core.PApplet;
@@ -26,7 +25,7 @@ public class ShapeFinderTest extends PApplet{
     int FINDER_MAX_DEPTH = 800;
 
     FWorld world;
-    ShapeFinder finder = new ShapeFinder(null, 10, 800);
+    ShapeFinder finder = new ShapeFinder(null, 10, 800, 2);
 
     // #endregion parameters
 
@@ -91,7 +90,7 @@ public class ShapeFinderTest extends PApplet{
                     }
                     else {
                         BitImage image = new BitImage(this.getGraphics());
-                        finder = new ShapeFinder(image, 10, 800);
+                        finder = new ShapeFinder(image, 10, 800, 2);
                         finder.start();
                     }
                 }

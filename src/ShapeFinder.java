@@ -9,27 +9,36 @@ public class ShapeFinder extends Thread {
 
     public FPoly shape = null;
     public Point center;
+    public BitImage update = null;
 
     private BitImage image;
     private int resolution;
     private int maxDepth;
+    private int minBoarderSize;
     private Random rand = new Random();
 
     ArrayList<Point> boarder;
 
-    ShapeFinder(BitImage image, int resolution, int maxDepth) {
+    ShapeFinder(BitImage image, int resolution, int maxDepth, int minBoarderSize) {
         this.image = image;
         this.resolution = resolution;
         this.maxDepth = maxDepth;
+        this.minBoarderSize = minBoarderSize;
     }
 
     public void run() {
         // Try to find a shape at some random point.
         while(true)
         {
+            if(update != null)
+            {
+                image = update;
+                update = null;
+            }
+
             Point startPoint = new Point(rand.nextInt(image.width), rand.nextInt(image.height));
             boarder = new ArrayList<Point>();
-            if (findShape(startPoint, 0, 0) == 0 && boarder.size() > 2) {
+            if (findShape(startPoint, 0, 0) == 0 && boarder.size() > minBoarderSize) {
                 // If we find something, set the shape and return
                 shape = new FPoly();
                 shape.setNoStroke();

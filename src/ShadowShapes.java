@@ -24,10 +24,11 @@ public class ShadowShapes extends PApplet{
 
     int FINDER_RESOLUTION = 10;
     int FINDER_MAX_DEPTH = 800;
+    int MIN_SHAPE_SIZE = 10;
 
     Capture video;
     FWorld world;
-    ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
+    ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH, MIN_SHAPE_SIZE);
 
     PImage initImage;
     PImage image;
@@ -52,7 +53,6 @@ public class ShadowShapes extends PApplet{
     @Override
     public void setup() {
         // Processing setup
-        frameRate(30);
         noStroke();
 
         // Video setup
@@ -94,6 +94,13 @@ public class ShadowShapes extends PApplet{
             video.read();
             image = ImageManip.diff(this, video, initImage);
             image = ImageManip.mirrorImage(image);
+            image(image, 0, 0, width, height);
+
+            // Update the finder image
+            if(finder.isAlive() && finder.update == null)
+            {
+                finder.update = new BitImage(this.getGraphics());
+            }
         }
         image(image, 0, 0, width, height);
 
@@ -103,15 +110,17 @@ public class ShadowShapes extends PApplet{
         
 
         // Finder action
-        /*if (!finder.isAlive()) {
-            if (finder.shape != null && world.getBody(finder.center.x, finder.center.y) == null) {
-                finder.shape.setFill(200);
+        if (!finder.isAlive()) {
+            if (finder.shape != null && 
+                image.get(finder.center.x, finder.center.y) == this.color(255) &&
+                world.getBody(finder.center.x, finder.center.y) == null) {
+                finder.shape.setFill(200,0,0);
                 world.add(finder.shape);
             }
-            BitImage image = new BitImage(this.getGraphics());
-            finder = new ShapeFinder(image, FINDER_RESOLUTION, FINDER_MAX_DEPTH);
+            BitImage bitImage = new BitImage(this.getGraphics());
+            finder = new ShapeFinder(bitImage, FINDER_RESOLUTION, FINDER_MAX_DEPTH, MIN_SHAPE_SIZE);
             finder.start();
-        }*/
+        }
     }
 
     @Override

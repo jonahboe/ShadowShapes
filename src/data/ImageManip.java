@@ -1,6 +1,7 @@
 package data;
 
 import java.lang.Math;
+import java.util.Random;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -30,6 +31,10 @@ public class ImageManip {
         return mirror;
     }
 
+    /****************************************************************************************
+     *  diff():
+     *    Get the differance between two images.
+     ****************************************************************************************/
     public static PImage diff(PApplet app, PImage a, PImage b) {
         PImage out = new PImage(a.width, a.height);
         for (int i = 0; i < a.pixels.length; i++) {
@@ -54,6 +59,4 @@ public class ImageManip {
         }
         return out;
     }
-
-    
 }

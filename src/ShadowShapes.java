@@ -12,6 +12,8 @@
  *
  *  Enjoy!!! :)
  ****************************************************************************************/
+import java.util.Random;
+
 import data.BitImage;
 import data.ImageManip;
 import fisica.FWorld;
@@ -26,12 +28,14 @@ public class ShadowShapes extends PApplet{
     int FINDER_MAX_DEPTH = 800;
     int MIN_SHAPE_SIZE = 10;
 
-    Capture video;
-    FWorld world;
-    ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH, MIN_SHAPE_SIZE);
+    private Capture video;
+    private FWorld world;
+    private ShapeFinder finder = new ShapeFinder(null, FINDER_RESOLUTION, FINDER_MAX_DEPTH, MIN_SHAPE_SIZE);
 
-    PImage initImage;
-    PImage image;
+    private PImage initImage;
+    private PImage image;
+
+    private Random rand = new Random();
 
     public static void main(String[] args) {
         PApplet.main("ShadowShapes");
@@ -124,7 +128,8 @@ public class ShadowShapes extends PApplet{
             if (finder.shape != null && 
                 image.get(finder.center.x, finder.center.y) == this.color(255) &&
                 world.getBody(finder.center.x, finder.center.y) == null) {
-                finder.shape.setFill(200,0,0);
+                int[] c = randomColor();
+                finder.shape.setFill(c[0],c[1],c[2]);
                 world.add(finder.shape);
             }
             BitImage bitImage = new BitImage(this.getGraphics());
@@ -140,5 +145,21 @@ public class ShadowShapes extends PApplet{
             video.read();
             initImage = video.get();
         }
+    }
+
+    /****************************************************************************************
+     *  randomColor():
+     *    Select a random color from these random presets.
+     *    Return the color.
+     ****************************************************************************************/
+    private int[] randomColor() {
+        int select = rand.nextInt(5);
+        int c[][] = {{255,0,0},     //red
+                     {255,157,0},   //orange
+                     {28,255,0},    //green
+                     {57,90,255},   //blue
+                     {167,0,219}};  //purple
+
+        return c[select];
     }
 }

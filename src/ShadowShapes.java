@@ -98,11 +98,12 @@ public class ShadowShapes extends PApplet{
             // Update the finder image
             if(finder.isAlive())
             {
+                finder.stopThread = true;
                 try
                 {
-                    finder.stop();
+                    finder.join();
                 }
-                catch (SecurityException e)
+                catch (InterruptedException e)
                 {
                     // Do nothing
                 }

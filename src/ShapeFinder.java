@@ -8,6 +8,7 @@ import fisica.FPoly;
 public class ShapeFinder extends Thread {
 
     public FPoly shape = null;
+    public boolean stopThread = false;
     public Point center;
 
     private BitImage image;
@@ -29,7 +30,10 @@ public class ShapeFinder extends Thread {
         // Try to find a shape at some random point.
         while(true)
         {
-
+            if (stopThread)
+            {
+                return;
+            }
             Point startPoint = new Point(rand.nextInt(image.width), rand.nextInt(image.height));
             boarder = new ArrayList<Point>();
             if (findShape(startPoint, 0, 0) == 0 && boarder.size() > minBoarderSize) {

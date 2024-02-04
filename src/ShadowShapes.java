@@ -66,11 +66,11 @@ public class ShadowShapes extends PApplet{
                 println(i + ": " + cameras[i]);
             }
         }
-        video = new Capture(this, cameras[0]);
+        video = new Capture(this, width, height, cameras[0]);
         video.start();   
         while (!video.available());
         video.read();
-        initImage = video.get();
+        initImage = video.get(); // We want only a copy of this, not the refferance.
 
         // Fisica setup
         Fisica.init(this);
@@ -94,12 +94,21 @@ public class ShadowShapes extends PApplet{
             video.read();
             image = ImageManip.diff(this, video, initImage);
             image = ImageManip.mirrorImage(image);
-            image(image, 0, 0, width, height);
 
             // Update the finder image
-            if(finder.isAlive() && finder.update == null)
+            if(finder.isAlive())
             {
-                finder.update = new BitImage(this.getGraphics());
+                try
+                {
+                    finder.stop();
+                }
+                catch (SecurityException e)
+                {
+                    // Do nothing
+                }
+                BitImage bitImage = new BitImage(image);
+                finder = new ShapeFinder(bitImage, FINDER_RESOLUTION, FINDER_MAX_DEPTH, MIN_SHAPE_SIZE);
+                finder.start();
             }
         }
         image(image, 0, 0, width, height);

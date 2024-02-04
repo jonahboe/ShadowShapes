@@ -1,13 +1,14 @@
 package data;
 
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
 public class BitImage {
 
-    public enum color {black, white, other}
+    public enum bitColor {black, white, other}
 
-    private color[][] image;
+    private bitColor[][] image;
     public int width;
     public int height;
 
@@ -15,41 +16,41 @@ public class BitImage {
     public BitImage(PGraphics graphics) {
         this.width = graphics.width;
         this.height = graphics.height;
-        this.image = new color[height][width];
+        this.image = new bitColor[height][width];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (graphics.get(x,y) == graphics.color(0)) {
-                    this.image[y][x] = color.black;
+                    this.image[y][x] = bitColor.black;
                 }
                 else {
-                    this.image[y][x] = color.white;
+                    this.image[y][x] = bitColor.white;
                 }
             }
         }
     }
 
-    public BitImage(PImage image) {
-        this.width = image.width;
-        this.height = image.height;
-        this.image = new color[height][width];
+    public BitImage(PImage img) {
+        this.width = img.width;
+        this.height = img.height;
+        this.image = new bitColor[height][width];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (image.get(x,y) == 0x000000) {
-                    this.image[y][x] = color.black;
+                if (img.get(x,y) == -16777216) { // This is black
+                    this.image[y][x] = bitColor.black;
                 }
                 else {
-                    this.image[y][x] = color.white;
+                    this.image[y][x] = bitColor.white;
                 }
             }
         }
     }
 
-    public color get(int x, int y) {
+    public bitColor get(int x, int y) {
         return image[y][x];
     }
 
     public void line(int xa, int ya, int xb, int yb) {
-        image[ya][xa] = color.other;
-        image[yb][xb] = color.other;
+        image[ya][xa] = bitColor.other;
+        image[yb][xb] = bitColor.other;
     }
 }

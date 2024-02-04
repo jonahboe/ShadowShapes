@@ -55,7 +55,7 @@ public class ShapeFinderTest extends PApplet{
 
         Fisica.init(this);
         world = new FWorld();
-        world.setGravity(0, 200);
+        world.setGravity(0, 400);
         world.setEdges();
     }
 
@@ -89,7 +89,7 @@ public class ShapeFinderTest extends PApplet{
                         break;
                     }
                     else {
-                        BitImage image = new BitImage(this.getGraphics());
+                        BitImage image = new BitImage(this.get());
                         finder = new ShapeFinder(image, 10, 800, 2);
                         finder.start();
                     }

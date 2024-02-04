@@ -9,7 +9,6 @@ public class ShapeFinder extends Thread {
 
     public FPoly shape = null;
     public Point center;
-    public BitImage update = null;
 
     private BitImage image;
     private int resolution;
@@ -30,11 +29,6 @@ public class ShapeFinder extends Thread {
         // Try to find a shape at some random point.
         while(true)
         {
-            if(update != null)
-            {
-                image = update;
-                update = null;
-            }
 
             Point startPoint = new Point(rand.nextInt(image.width), rand.nextInt(image.height));
             boarder = new ArrayList<Point>();
@@ -45,16 +39,29 @@ public class ShapeFinder extends Thread {
                 shape.setDensity(50);
                 shape.setRestitution((float)0.3);
                 shape.setFriction((float)0.3);
+                int lastx = 0;
+                int lasty = 0;
                 int xMin = image.width;
                 int xMax = 0;
                 int yMin = image.height;
                 int yMax = 0;
                 for (Point point : boarder) {
-                    shape.vertex(point.x, point.y);
-                    xMin = xMin > point.x ? point.x : xMin;
-                    xMax = xMax < point.x ? point.x : xMax;
-                    yMin = yMin > point.y ? point.y : yMin;
-                    yMax = yMax < point.y ? point.y : yMax;
+                    // If any two points are too far apart, this is not a proper shape.
+                    if ((lastx == 0 && lasty == 0) || (Math.abs(point.x - lastx) < resolution*3 && Math.abs(point.y - lasty) < resolution*3))
+                    {
+                        lastx = point.x;
+                        lasty = point.y;
+                        shape.vertex(point.x, point.y);
+                        xMin = xMin > point.x ? point.x : xMin;
+                        xMax = xMax < point.x ? point.x : xMax;
+                        yMin = yMin > point.y ? point.y : yMin;
+                        yMax = yMax < point.y ? point.y : yMax;
+                    }
+                    else
+                    {
+                        shape = null;
+                        return;
+                    }
                 }
                 center = new Point((xMin + xMax)/2, (yMin + yMax)/2);
                 return;
@@ -94,12 +101,12 @@ public class ShapeFinder extends Thread {
                 return -1;
             }
             // If the next pixel is black (shadow), then add that pixel the the boarder.
-            else if (image.get(next.x, next.y) == BitImage.color.black) {
+            else if (image.get(next.x, next.y) == BitImage.bitColor.black) {
                 image.line(me.x, me.y, next.x, next.y);
                 boarder.add(next);
             }
             // If the next pixel is not white, then end this branch.
-            else if (image.get(next.x, next.y) == BitImage.color.other) {
+            else if (image.get(next.x, next.y) == BitImage.bitColor.other) {
                 image.line(me.x, me.y, next.x, next.y);
             }
             // Otherwise, do a recursive check to the left and then right.
